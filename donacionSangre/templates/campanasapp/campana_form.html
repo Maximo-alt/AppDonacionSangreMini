@@ -1,0 +1,40 @@
+{% extends 'campanasapp/base.html' %}
+
+{% block contenido %}
+<div style="max-width: 600px; margin: 2rem auto;">
+    <h2 style="color: #C8102E;">{{ accion }} Campaña</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 4px;
+                        background: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %};
+                        color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="card">
+        {% csrf_token %}
+        {% for field in form %}
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.3rem; font-weight: bold;">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: #C8102E; font-size: 0.85rem;">{{ field.errors.0 }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn" style="width: 100%; padding: 0.8rem;">Guardar</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1rem;">
+        <a href="{% url 'campanas' %}" style="color: #C8102E;">Volver a la lista</a>
+    </p>
+</div>
+<style>
+    .form-control, select, input, textarea {
+        width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;
+    }
+</style>
+{% endblock %}

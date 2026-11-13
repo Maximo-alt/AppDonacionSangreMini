@@ -1,0 +1,81 @@
+{% extends 'campanasapp/base.html' %}
+
+{% block contenido %}
+<div style="max-width: 650px; margin: 2rem auto;">
+    <h2 style="color: #C8102E;">Crear cuenta</h2>
+    <p style="color: #666; margin-bottom: 1.5rem;">Regístrate para inscribirte en campañas de donación.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alerta {% if message.tags == 'error' %}alerta-error{% else %}alerta-exito{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="card">
+        {% csrf_token %}
+
+        {# --- Datos personales --- #}
+        <h3 style="color: #C8102E; margin-bottom: 1rem; font-size: 1.1rem;">Datos personales</h3>
+
+        {% for field in form %}
+            {% if field.name != 'acepta_terminos' and field.name != 'acepta_privacidad' and field.name != 'acepta_datos_salud' %}
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.3rem; font-weight: bold;">
+                        {{ field.label }}
+                        {% if field.field.required %}<span style="color: #C8102E;">*</span>{% endif %}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: #C8102E; font-size: 0.85rem; margin-top: 0.3rem;">
+                            {{ field.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {# --- Consentimientos --- #}
+        <h3 style="color: #C8102E; margin: 1.5rem 0 1rem 0; font-size: 1.1rem;">
+            Consentimientos obligatorios
+        </h3>
+
+        <div style="background: #fff8e1; border-left: 4px solid #ffc107; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+            <p style="font-size: 0.9rem; color: #666; margin: 0;">
+                Para crear tu cuenta, es necesario que aceptes los siguientes consentimientos.
+            </p>
+        </div>
+
+        {% for field in form %}
+            {% if field.name == 'acepta_terminos' or field.name == 'acepta_privacidad' or field.name == 'acepta_datos_salud' %}
+                <div style="margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 0.5rem;">
+                    {{ field }}
+                    <label for="{{ field.id_for_label }}" style="font-size: 0.95rem; line-height: 1.4;">
+                        {{ field.label }}
+                        {% if field.errors %}
+                            <div style="color: #C8102E; font-size: 0.85rem; margin-top: 0.2rem;">
+                                {{ field.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </label>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if form.non_field_errors %}
+            <div style="color: #C8102E; margin: 1rem 0;">
+                {{ form.non_field_errors.0 }}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn" style="width: 100%; padding: 0.8rem; margin-top: 1rem;">
+            Registrarme
+        </button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1rem;">
+        ¿Ya tienes cuenta? <a href="{% url 'login' %}" style="color: #C8102E;">Inicia sesión</a>
+    </p>
+</div>
+{% endblock %}

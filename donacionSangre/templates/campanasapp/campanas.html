@@ -1,0 +1,88 @@
+{% extends 'campanasapp/base.html' %}
+
+{% block contenido %}
+<h2>Campañas de Donación</h2>
+<p style="color: #666; margin-bottom: 1.5rem;">Listado de campañas disponibles para donación de sangre.</p>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alerta {% if message.tags == 'error' %}alerta-error{% elif message.tags == 'warning' %}alerta-warning{% else %}alerta-exito{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Lugar</th>
+            <th>Fecha Inicio</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for campana in campanas %}
+        <tr>
+            <td>
+                <a href="{% url 'campana_detalle' campana.id %}" style="color: #C8102E; font-weight: bold; text-decoration: none;">
+                    {{ campana.nombre }}
+                </a>
+            </td>
+            <td>{{ campana.id_centro_salud.nombre|default:"Sin centro asignado" }}</td>
+            <td>{{ campana.fecha_inicio|date:"d/m/Y" }}</td>
+            <td>
+                <span style="background: 
+                    {% if campana.estado == 'Activa' %}#28a745
+                    {% elif campana.estado == 'Finalizada' %}#6c757d
+                    {% elif campana.estado == 'Cancelada' %}#dc3545
+                    {% else %}#ffc107{% endif %};
+                    color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                    {{ campana.estado|default:"Activa" }}
+                </span>
+            </td>
+            <td>
+                {% if request.session.usuario_rol == 'Admin' %}
+                    <a href="{% url 'campana_editar' campana.id %}" class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #ffc107; color: #000;">Editar</a>
+                    <a href="{% url 'campana_eliminar' campana.id %}" class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Eliminar</a>
+                {% elif request.session.usuario_id %}
+                    {% if campana.estado == 'Finalizada' or campana.estado == 'Cancelada' %}
+                        <span style="background: #6c757d; color: white; padding: 0.3rem 0.8rem; font-size: 0.8rem; border-radius: 4px; display: inline-block;">
+                            No disponible
+                        </span>
+                    {% elif campana.id in campanas_inscritas %}
+                        <span style="background: #28a745; color: white; padding: 0.3rem 0.8rem; font-size: 0.8rem; border-radius: 4px; display: inline-block;">
+                            ✓ Inscrito
+                        </span>
+                        <a href="{% url 'desinscribirse_campana' campana.id %}"
+                           class="btn"
+                           style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #6c757d; margin-left: 0.3rem;"
+                           onclick="return confirm('¿Seguro que quieres desinscribirte de esta campaña?');">
+                            Desinscribirse
+                        </a>
+                    {% else %}
+                        <a href="{% url 'inscribirse_campana' campana.id %}" class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">Inscribirse</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #6c757d;">Inicia sesión</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center; padding: 2rem; color: #888;">
+                No hay campañas disponibles
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{% url 'index' %}" class="btn" style="background: #6c757d;">Volver al inicio</a>
+    {% if request.session.usuario_rol == 'Admin' %}
+        <a href="{% url 'campana_crear' %}" class="btn">+ Crear nueva campaña</a>
+    {% endif %}
+</div>
+{% endblock %}

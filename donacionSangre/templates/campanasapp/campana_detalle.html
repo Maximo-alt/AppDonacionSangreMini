@@ -1,0 +1,102 @@
+{% extends 'campanasapp/base.html' %}
+
+{% block contenido %}
+<div style="max-width: 800px; margin: 2rem auto;">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alerta {% if message.tags == 'error' %}alerta-error{% elif message.tags == 'warning' %}alerta-warning{% else %}alerta-exito{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 style="color: #C8102E; margin-bottom: 0.5rem;">{{ campana.nombre }}</h2>
+                <p style="color: #888; font-size: 0.9rem;">
+                    Organizada por {{ campana.id_usuario.nombre|default:"Blud" }}
+                </p>
+            </div>
+            <span style="background: 
+                {% if campana.estado == 'Activa' %}#28a745
+                {% elif campana.estado == 'Finalizada' %}#6c757d
+                {% elif campana.estado == 'Cancelada' %}#dc3545
+                {% else %}#ffc107{% endif %};
+                color: white; padding: 0.4rem 0.9rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold;">
+                {{ campana.estado|default:"Activa" }}
+            </span>
+        </div>
+
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
+
+        <h3 style="color: #C8102E; margin-bottom: 0.8rem; font-size: 1.1rem;">Descripción</h3>
+        <p style="line-height: 1.6; color: #444; margin-bottom: 1.5rem;">
+            {{ campana.descripcion|default:"Sin descripción disponible." }}
+        </p>
+
+        <h3 style="color: #C8102E; margin-bottom: 0.8rem; font-size: 1.1rem;">Información de la campaña</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div style="background: #f9f9f9; padding: 1rem; border-radius: 6px;">
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 0.3rem;">📅 FECHA DE INICIO</p>
+                <p style="font-weight: bold;">{{ campana.fecha_inicio|date:"d/m/Y" }}</p>
+            </div>
+
+            {% if campana.fecha_fin %}
+            <div style="background: #f9f9f9; padding: 1rem; border-radius: 6px;">
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 0.3rem;">📅 FECHA DE TÉRMINO</p>
+                <p style="font-weight: bold;">{{ campana.fecha_fin|date:"d/m/Y" }}</p>
+            </div>
+            {% endif %}
+
+            <div style="background: #f9f9f9; padding: 1rem; border-radius: 6px;">
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 0.3rem;">📍 LUGAR</p>
+                <p style="font-weight: bold;">{{ campana.id_centro_salud.nombre|default:"Por definir" }}</p>
+                {% if campana.id_centro_salud.direccion %}
+                    <p style="font-size: 0.85rem; color: #666;">{{ campana.id_centro_salud.direccion }}</p>
+                {% endif %}
+            </div>
+
+            {% if campana.id_centro_salud.id_comuna %}
+            <div style="background: #f9f9f9; padding: 1rem; border-radius: 6px;">
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 0.3rem;">🏙️ COMUNA</p>
+                <p style="font-weight: bold;">{{ campana.id_centro_salud.id_comuna.nombre }}</p>
+                <p style="font-size: 0.85rem; color: #666;">{{ campana.id_centro_salud.id_comuna.id_region.nombre }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 1.5rem; background: #e8f5e9; padding: 1rem; border-radius: 6px; text-align: center;">
+            <p style="font-size: 0.85rem; color: #2e7d32; margin-bottom: 0.3rem;">DONANTES INSCRITOS</p>
+            <p style="font-size: 1.5rem; font-weight: bold; color: #2e7d32;">{{ total_inscritos }}</p>
+        </div>
+
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{% url 'campanas' %}" class="btn" style="background: #6c757d;">← Volver a campañas</a>
+
+            {% if request.session.usuario_rol == 'Admin' %}
+                <a href="{% url 'campana_editar' campana.id %}" class="btn" style="background: #ffc107; color: #000;">Editar campaña</a>
+            {% elif request.session.usuario_id %}
+                {% if campana.estado == 'Finalizada' or campana.estado == 'Cancelada' %}
+                    <span class="btn" style="background: #6c757d; cursor: default;">No disponible</span>
+                {% elif inscrito %}
+                    <span class="btn" style="background: #28a745; cursor: default;">✓ Ya estás inscrito</span>
+                    <a href="{% url 'desinscribirse_campana' campana.id %}" class="btn" style="background: #6c757d;"
+                       onclick="return confirm('¿Seguro que quieres desinscribirte?');">
+                        Desinscribirse
+                    </a>
+                {% else %}
+                    <a href="{% url 'inscribirse_campana' campana.id %}" class="btn">Inscribirse</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn">Inicia sesión para inscribirte</a>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

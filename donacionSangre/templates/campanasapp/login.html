@@ -1,0 +1,46 @@
+{% extends 'campanasapp/base.html' %}
+
+{% block contenido %}
+<div style="max-width: 450px; margin: 3rem auto;">
+    <h2 style="color: #C8102E;">Iniciar sesión</h2>
+    <p style="color: #666; margin-bottom: 1.5rem;">Accede a tu cuenta para inscribirte en campañas.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 4px;
+                        background: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %};
+                        color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="card">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.3rem; font-weight: bold;">Correo</label>
+            <input type="email" name="mail" value="{{ request.COOKIES.correo_recordado|default:'' }}" required style="width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.3rem; font-weight: bold;">Contraseña</label>
+            <!-- Si la cookie 'correo_recordado' existe, la precargamos -->
+            <input type="password" name="contrasena" required style="width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <!--Checkbox para recordar -->
+        <!-- Mostrar solo si NO ha rechazado las cookies -->
+        {% if request.COOKIES.cookie_consent != 'rejected' %}
+        <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <input type="checkbox" name="recordarme" id="recordarme" style="width: auto;">
+            <label for="recordarme" style="font-weight: normal; cursor: pointer;">Recordar mi correo</label>
+        </div>
+        {% endif %}
+        </div>
+        <button type="submit" class="btn" style="width: 100%; padding: 0.8rem;">Entrar</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1rem;">
+        ¿No tienes cuenta? <a href="{% url 'registro' %}" style="color: #C8102E;">Regístrate</a>
+    </p>
+</div>
+{% endblock %}

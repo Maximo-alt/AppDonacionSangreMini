@@ -1,0 +1,48 @@
+{% extends 'campanasapp/base.html' %}
+
+{% block contenido %}
+<div style="text-align: center; margin: 2rem 0; padding: 2rem; background: #f0f0f0; border-radius: 8px;">
+    <h2 style="font-size: 2.5rem; color: #C8102E; margin-bottom: 0.5rem;">Dona sangre, dona vida</h2>
+    <p style="font-size: 1.2rem; color: #555;">Conectamos donantes voluntarios con campañas cercanas.</p>
+    <div style="margin-top: 1.5rem;">
+        <a href="{% url 'campanas' %}" class="btn" style="font-size: 1.1rem; padding: 0.8rem 2rem;">Ver todas las campañas</a>
+    </div>
+</div>
+
+<h3 style="color: #C8102E; margin-bottom: 1rem;">Próximas campañas</h3>
+<div class="grid">
+    {% for campana in campanas %}
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem;">
+            <h4 style="color: #C8102E; font-size: 1.2rem;">{{ campana.nombre }}</h4>
+            <span style="background: 
+                {% if campana.estado == 'Activa' %}#28a745
+                {% elif campana.estado == 'Finalizada' %}#6c757d
+                {% elif campana.estado == 'Cancelada' %}#dc3545
+                {% else %}#ffc107{% endif %};
+                color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">
+                {{ campana.estado|default:"Activa" }}
+            </span>
+        </div>
+
+        <p style="color: #666; margin-bottom: 0.5rem;">
+            <strong>Lugar:</strong> {{ campana.id_centro_salud.nombre|default:"Por definir" }}
+        </p>
+        <p style="color: #666; margin-bottom: 0.5rem;">
+            <strong>Inicio:</strong> {{ campana.fecha_inicio|date:"d/m/Y" }}
+        </p>
+        {% if campana.fecha_fin %}
+        <p style="color: #666; margin-bottom: 0.5rem;">
+            <strong>Término:</strong> {{ campana.fecha_fin|date:"d/m/Y" }}
+        </p>
+        {% endif %}
+
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'campana_detalle' campana.id %}" class="btn" style="padding: 0.5rem 1.2rem;">Ver detalles</a>
+        </div>
+    </div>
+    {% empty %}
+    <p>No hay campañas disponibles.</p>
+    {% endfor %}
+</div>
+{% endblock %}

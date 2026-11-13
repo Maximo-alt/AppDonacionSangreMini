@@ -1,0 +1,14 @@
+{% extends 'campanasapp/base.html' %}
+
+{% block contenido %}
+<div style="max-width: 500px; margin: 3rem auto; text-align: center;">
+    <h2 style="color: #C8102E;">¿Eliminar campaña?</h2>
+    <p style="margin: 1.5rem 0;">¿Estás seguro de que quieres eliminar <strong>{{ campana.nombre }}</strong>? Esta acción no se puede deshacer.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn" style="background: #C8102E;">Sí, eliminar</button>
+        <a href="{% url 'campanas' %}" class="btn" style="background: #6c757d; margin-left: 1rem;">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
